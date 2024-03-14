@@ -11,12 +11,11 @@ import robocode.*;
  */
 public class SenRob extends AdvancedRobot
 {
-	private double curFirePower = 1.0, curAccurate = 0.5;
+	private double curFirePower = 1.0, curAccurate = 0.5, curRadarTurn = 360;
 	private boolean curNeedFire = false;
 
-	private boolean curNeedEsc = false, curNeedScan = true;
+	private boolean curNeedEsc = false;
 
-	static private int counter = 0;
 	/**
 	 * run: SenRob's default behavior
 	 */
@@ -57,8 +56,11 @@ public class SenRob extends AdvancedRobot
 			curFirePower = Rules.MAX_BULLET_POWER;
 		}
 
-		curNeedScan = false;
-		measureRadar(e);
+		curRadarTurn = measureRadar(e);
+	}
+
+	public void onRobotDeath(RobotDeathEvent e) {
+		curRadarTurn = 360;
 	}
 
 	/**
@@ -78,7 +80,9 @@ public class SenRob extends AdvancedRobot
 	}
 	
 	private void doMove() {
-		setAhead(5);
+		if (getVelocity() < 10) {
+			setAhead(10);
+		}
 	}
 
 	private void doSearchTarget() {
@@ -86,7 +90,9 @@ public class SenRob extends AdvancedRobot
 		//	curNeedScan = true;
 		//	setTurnRadarLeft(60);
 		//}
-		setTurnRadarLeft(360);
+		if (getRadarTurnRemaining() <= 20) {
+			setTurnRadarLeft(curRadarTurn);
+		}
 	}
 
 	private void doFire() {
@@ -107,7 +113,7 @@ public class SenRob extends AdvancedRobot
 
 	private boolean measureTarget(ScannedRobotEvent e) {
 		double gunturn = turnRate(measureDirect(e.getBearing(), getGunHeading()));
-		if (getGunTurnRemaining() <= 5) {
+		if (getGunTurnRemaining() <= 10) {
 			setTurnGunRight(gunturn);
 		}
 
@@ -127,13 +133,15 @@ public class SenRob extends AdvancedRobot
 		return false;
 	}
 
-	private void measureRadar(ScannedRobotEvent e) {
-		double radarturn = turnRate(measureDirect(e.getBearing(), getRadarHeading()));
-		if (radarturn > 0) {
-			setTurnRadarRight(radarturn);
-		} else if (radarturn < 0) {
-			setTurnRadarLeft(radarturn);
+	private double measureRadar(ScannedRobotEvent e) {
+		double radarTurn = turnRate(measureDirect(e.getBearing(), getRadarHeading()));
+		if (radarTurn > 0) {
+			radarTurn += 5;
+		} else if (radarTurn < 0) {
+			radarTurn -= 5;
 		}
+
+		return radarTurn;
 	}
 
 	private double measureDirect(double bearing, double heading) {
