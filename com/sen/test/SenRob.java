@@ -60,6 +60,7 @@ public class SenRob extends AdvancedRobot
 	}
 
 	public void onRobotDeath(RobotDeathEvent e) {
+		out.println("robot "+e.getName()+" dead!");
 		curRadarTurn = 360;
 	}
 
@@ -90,9 +91,9 @@ public class SenRob extends AdvancedRobot
 		//	curNeedScan = true;
 		//	setTurnRadarLeft(60);
 		//}
-		if (getRadarTurnRemaining() <= 20) {
-			setTurnRadarLeft(curRadarTurn);
-		}
+		//if (getRadarTurnRemaining() <= 20) {
+			setTurnRadarRight(curRadarTurn);
+		//}
 	}
 
 	private void doFire() {
@@ -136,9 +137,9 @@ public class SenRob extends AdvancedRobot
 	private double measureRadar(ScannedRobotEvent e) {
 		double radarTurn = turnRate(measureDirect(e.getBearing(), getRadarHeading()));
 		if (radarTurn > 0) {
-			radarTurn += 5;
+			radarTurn += 10;
 		} else if (radarTurn < 0) {
-			radarTurn -= 5;
+			radarTurn -= 10;
 		}
 
 		return radarTurn;
